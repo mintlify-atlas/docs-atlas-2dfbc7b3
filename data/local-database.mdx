@@ -1,7 +1,7 @@
 ---
-title: "Local SQLite Database in ThunderRAR"
+title: "ThunderRAR: Local SQLite Database Schema and Setup"
 sidebarTitle: "Local Database"
-description: "ThunderRAR uses Android's SQLiteOpenHelper to manage a local users table that stores employee usernames and passwords on the device."
+description: "ThunderRAR uses SQLiteOpenHelper to manage a local users table, storing employee usernames and passwords on-device without a remote server."
 ---
 
 ThunderRAR includes a local SQLite database layer backed by Android's `SQLiteOpenHelper` API. The `BaseDeDatosUsers` class encapsulates all database lifecycle management — creating the schema on first launch and providing a hook for future migrations — giving the application a structured, on-device store for employee credentials that does not rely on a remote server or shared preferences.
@@ -23,9 +23,9 @@ import android.database.sqlite.SQLiteOpenHelper;
 public class BaseDeDatosUsers extends SQLiteOpenHelper {
 
     public BaseDeDatosUsers(
-        Context context,
-        String name,
-        SQLiteDatabase.CursorFactory factory,
+        @Nullable Context context,
+        @Nullable String name,
+        @Nullable SQLiteDatabase.CursorFactory factory,
         int version
     ) {
         super(context, name, factory, version);
@@ -40,7 +40,7 @@ public class BaseDeDatosUsers extends SQLiteOpenHelper {
 
     @Override
     public void onUpgrade(SQLiteDatabase BaseDeDatos, int oldVersion, int newVersion) {
-        // reserved for future schema migrations
+
     }
 }
 ```

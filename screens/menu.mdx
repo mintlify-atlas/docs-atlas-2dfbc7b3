@@ -1,7 +1,7 @@
 ---
-title: "Main Menu — ThunderRAR Business Dashboard"
+title: "Main Menu — ThunderRAR Employee Business Dashboard"
 sidebarTitle: "Menu"
-description: "The ThunderRAR main menu gives authenticated employees access to four business modules: Comunidad, Venta, Logistica, and Reporte."
+description: "The ThunderRAR main menu gives authenticated employees access to four stubbed business modules: Comunidad, Venta, Logistica, and Reporte."
 ---
 
 The main menu is the central dashboard of ThunderRAR and the screen employees land on after a successful login. It is implemented by `Activity_menu` and launched from `MainActivity` when the entered credentials match the registered ones. The screen presents four business modules arranged in a 2×2 grid, each represented by an icon button and a label. All modules are currently stubbed and are planned for a future release.
@@ -69,4 +69,4 @@ The screen uses a `ConstraintLayout` root with a full-bleed background image (`f
 - **Row 3** — `ImageButton` for Logistica, a 100 dp `Space` separator, `ImageButton` for Reporte.
 - **Row 4** — `TextView` label "Logistica", a 100 dp `Space` separator, `TextView` label "Reporte".
 
-Each `ImageButton` has a fully transparent background tint (`#00FFFFFF`) so only the icon graphic is visible against the background image. Labels are rendered in black at 20 sp with centre gravity.
+Each `ImageButton` has a fully transparent background tint so only the icon graphic is visible against the background image — `imageButton2` uses `#00FBFBFB` while `imageButton3`, `imageButton4`, and `imageButton5` use `#00FFFFFF`. Labels are rendered in black at 20 sp with centre gravity.

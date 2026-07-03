@@ -1,7 +1,7 @@
 ---
-title: "User Session Management in ThunderRAR"
+title: "Managing User Sessions via Intent Extras in ThunderRAR"
 sidebarTitle: "User Session"
-description: "ThunderRAR v1.0 manages user sessions through Android Intent extras, passing registration credentials from the registration screen back to the login screen."
+description: "ThunderRAR v1.0 manages user sessions with Android Intent extras, passing registration credentials from activity_registro to MainActivity."
 ---
 
 In ThunderRAR v1.0, session data flows entirely through Android `Intent` extras rather than a persistent store. When an employee completes registration in `activity_registro`, their username and password are attached to an `Intent` that launches `MainActivity`. The login screen then holds those values in memory as instance variables for the lifetime of the Activity, comparing them against the credentials the employee types into the login form when they attempt to sign in.

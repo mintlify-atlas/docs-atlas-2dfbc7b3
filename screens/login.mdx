@@ -15,6 +15,7 @@ The login screen is built with a `ConstraintLayout` over a full-bleed background
 | App logo | `imageView` / `ShapeableImageView` | Circular-cropped application icon (`icon_aplicacion`) displayed at the top centre of the screen. |
 | App name label | `textView8` / `TextView` | Displays the string `ThunderRAR` in white at 20 sp, centred beneath the logo. |
 | Welcome text | `textView9` / `TextView` | Displays `¡Bienvenido a ThunderRAR!` in white at 19 sp, directly below the app name. |
+| Employee field label | `textView2` / `TextView` | Displays `"Ingrese su correo de empleado:"` in white at 20 sp, above the username field. |
 | Employee email / username field | `txt_usuario` / `EditText` | Accepts free text input (`inputType="text"`). Placeholder hint: **USUARIO**. White underline indicator. |
 | Password field | `txt_password` / `EditText` | Accepts secret input (`inputType="textPassword"`). Placeholder hint: **CONTRASEÑA**. White underline indicator. |
 | INICIAR SESION button | `button2` / `Button` | Blue background (`#3B4FFF`), white text. Triggers `inicioSesion(View)` on click. |
@@ -49,7 +50,7 @@ public void inicioSesion(View view) {
     String datoUsuario = txt_usuario.getText().toString();
     String datoPassword = txt_password.getText().toString();
     if (datoUsuarioRecibido == null || dato2PasswordRecibido == null) {
-        Toast.makeText(this, "Datos de registro no encontrados, registrase",
+        Toast.makeText(this, "Datos de registro no encontrados,registrase",
             Toast.LENGTH_SHORT).show();
         return;
     }

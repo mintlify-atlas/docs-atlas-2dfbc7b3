@@ -1,7 +1,7 @@
 ---
-title: "Get Started with ThunderRAR"
+title: "ThunderRAR: Clone, Build, and Run in Android Studio"
 sidebarTitle: "Quickstart"
-description: "Clone the ThunderRAR repository, open it in Android Studio, and run the app on an emulator or physical device in a few steps."
+description: "Clone the ThunderRAR repository, open it in Android Studio, and run the app on an emulator or physical device in under ten minutes."
 ---
 
 This page walks you through getting ThunderRAR running on your local machine from scratch. You will clone the repository, let Gradle sync the dependencies, boot an emulator (or plug in a real device), and complete the full registration and login flow — all in under ten minutes.
@@ -45,7 +45,7 @@ This page walks you through getting ThunderRAR running on your local machine fro
     1. Tap the **REGISTRARSE** button on the login screen.
     2. You are taken to the registration screen (`activity_registro`).
     3. Enter a **username** in the USUARIO field and a **password** in the CONTRASEÑA field.
-    4. Tap **REGISTRARSE**. A *"Registro exitoso"* toast appears, and the app navigates back to the login screen with your credentials stored in Intent extras.
+    4. Tap **REGISTRARSE**. A *"Registro exitoso"* toast appears, and the app starts a new `MainActivity` instance carrying your username and password as Intent extras (`"dato"` and `"dato2"`).
   </Step>
 
   <Step title="Log in">

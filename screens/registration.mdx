@@ -71,7 +71,3 @@ These values are then used by `inicioSesion(View)` to validate login attempts.
 <Note>
   Credentials passed via Intent extras are held in memory for the lifetime of the `MainActivity` instance. If the activity is destroyed — for example by the user pressing the back button, closing the app, or the system reclaiming memory — the stored credentials are lost and the employee must register again on the next launch.
 </Note>
-
-<Tip>
-  For persistent credential storage across app sessions, see [data/local-database](/data/local-database) for guidance on implementing a SQLite-backed solution using Android's `SQLiteOpenHelper` or Room.
-</Tip>

@@ -1,0 +1,137 @@
+---
+title: "Build and Test ThunderRAR"
+sidebarTitle: "Build"
+description: "Build a debug or release APK for ThunderRAR using Android Studio or the Gradle wrapper, and run the included unit and instrumented tests."
+---
+
+ThunderRAR uses Gradle with the Kotlin DSL (`build.gradle.kts`) as its build system, managed through a committed Gradle wrapper so that every developer uses the exact same Gradle version without a separate global installation. This page explains how to produce a debug or release APK from the command line, how to deploy directly to a connected device, and how to run both test suites that ship with the project.
+
+## Debug build
+
+A debug APK is the standard artifact for local development and testing. It is signed automatically with a debug keystore and includes debugging symbols. Build it from the project root using the Gradle wrapper:
+
+```bash
+./gradlew assembleDebug
+```
+
+When the task completes successfully, the APK is written to:
+
+```
+app/build/outputs/apk/debug/app-debug.apk
+```
+
+You can also trigger a debug build from inside Android Studio via **Build → Build Bundle(s) / APK(s) → Build APK(s)**.
+
+## Release build
+
+The release variant is intended for distribution. Build it with:
+
+```bash
+./gradlew assembleRelease
+```
+
+The release APK is placed at:
+
+```
+app/build/outputs/apk/release/app-release-unsigned.apk
+```
+
+Two important notes about the current release configuration in `app/build.gradle.kts`:
+
+- **`isMinifyEnabled = false`** — code shrinking and obfuscation via R8/ProGuard are currently disabled for release builds.
+- **ProGuard rules file** — `app/proguard-rules.pro` is already wired up as the custom rules file (`proguard-android-optimize.txt` plus `proguard-rules.pro`), ready for when minification is enabled in a future version.
+
+> **The release APK must be signed with a production keystore before it can be distributed** via the Google Play Store or any other channel. Use Android Studio's **Build → Generate Signed Bundle / APK** wizard, or the `apksigner` command-line tool, to complete the signing step.
+
+## Install on a connected device
+
+To build a debug APK and push it directly to a device or emulator in a single step, run:
+
+```bash
+./gradlew installDebug
+```
+
+This task requires at least one device to be reachable over ADB — either a physical Android device with **USB Debugging** enabled, or a running Android Virtual Device (AVD). You can verify ADB connectivity beforehand with `adb devices`.
+
+## Running tests
+
+ThunderRAR ships with two test suites that map to the standard Android project layout.
+
+### Unit tests
+
+Local unit tests live in `app/src/test/` and run entirely on the JVM — no Android device or emulator is needed. Execute them with:
+
+```bash
+./gradlew test
+```
+
+The included baseline test verifies a trivial arithmetic assertion to confirm the test runner is wired up correctly:
+
+```java
+package com.example.thunder;
+
+import org.junit.Test;
+
+import static org.junit.Assert.*;
+
+/**
+ * Example local unit test, which will execute on the development machine (host).
+ *
+ * @see <a href="http://d.android.com/tools/testing">Testing documentation</a>
+ */
+public class ExampleUnitTest {
+    @Test
+    public void addition_isCorrect() {
+        assertEquals(4, 2 + 2);
+    }
+}
+```
+
+HTML test reports are written to `app/build/reports/tests/testDebugUnitTest/index.html` after the run.
+
+### Instrumented tests
+
+Instrumented tests live in `app/src/androidTest/` and execute directly on an Android device or emulator, giving them access to the real Android framework and application context. Run them with:
+
+```bash
+./gradlew connectedAndroidTest
+```
+
+This task requires either a physical device connected via ADB or a running AVD. The included baseline test asserts that the installed package name matches `com.example.thunder`:
+
+```java
+package com.example.thunder;
+
+import android.content.Context;
+
+import androidx.test.platform.app.InstrumentationRegistry;
+import androidx.test.ext.junit.runners.AndroidJUnit4;
+
+import org.junit.Test;
+import org.junit.runner.RunWith;
+
+import static org.junit.Assert.*;
+
+@RunWith(AndroidJUnit4.class)
+public class ExampleInstrumentedTest {
+    @Test
+    public void useAppContext() {
+        // Context of the app under test.
+        Context appContext = InstrumentationRegistry.getInstrumentation().getTargetContext();
+        assertEquals("com.example.thunder", appContext.getPackageName());
+    }
+}
+```
+
+## Gradle wrapper
+
+The Gradle wrapper (`gradlew` on macOS/Linux, `gradlew.bat` on Windows) is committed to the repository at the project root. It pins the build to **Gradle 8.11.1**, as declared in `gradle/wrapper/gradle-wrapper.properties`. When you invoke `./gradlew` for the first time, it automatically downloads that exact Gradle distribution to your local cache — no separate Gradle installation is required.
+
+<Note>
+  On Windows, replace `./gradlew` with `gradlew.bat` in every command shown on this page. For example:
+
+  ```bash
+  gradlew.bat assembleDebug
+  gradlew.bat test
+  ```
+</Note>

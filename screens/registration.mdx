@@ -1,0 +1,77 @@
+---
+title: "Registration Screen — Create a ThunderRAR Account"
+sidebarTitle: "Registration"
+description: "The ThunderRAR registration screen collects a username and password, then passes the credentials back to the login screen via Android Intent extras."
+---
+
+The registration screen is where new employees create their ThunderRAR account before they can log in. It is implemented by `activity_registro` and reached by pressing the **REGISTRARSE** button on the login screen. After a successful registration the screen passes the chosen username and password back to `MainActivity` as Intent extras, which `MainActivity` then stores in memory and uses for credential validation during login.
+
+## UI Elements
+
+The registration screen uses a `ConstraintLayout` with the same background image as the login screen (`fondo_pantalla_inico`). All interactive elements are grouped inside a centred `LinearLayout`:
+
+| Element | ID / Type | Description |
+|---|---|---|
+| Title label | `textView6` / `TextView` | Displays the string `Registrarse` in white at 50 sp. |
+| Username field | `reg_usuario` / `EditText` | Accepts free text (`inputType="text"`). Minimum height 48 dp. Placeholder hint: **USUARIO**. White underline indicator. |
+| Password field | `reg_password` / `EditText` | Accepts secret input (`inputType="textPassword"`). Minimum height 48 dp. Placeholder hint: **CONTRASEÑA**. White underline indicator. |
+| REGISTRARSE button | `button3` / `Button` | Blue background (`#0029FF`), white text at 18 sp. Triggers `enviar(View)` on click. |
+
+## Registration Logic
+
+When the employee taps **REGISTRARSE**, the `enviar(View)` method runs the following steps:
+
+<Steps>
+  <Step title="Read field values">
+    The text from `reg_usuario` and `reg_password` is read into local `String` variables.
+  </Step>
+  <Step title="Validate non-empty input">
+    If either field is empty, a Toast prompts the user to fill both fields and the method returns early without creating an account.
+  </Step>
+  <Step title="Build and send Intent">
+    A new `Intent` targeting `MainActivity` is created. The username is attached under the key `"dato"` and the password under `"dato2"` using `putExtra`. A success Toast is shown, then `startActivity(i)` navigates back to the login screen with the credentials bundled in the Intent.
+  </Step>
+</Steps>
+
+```java activity_registro.java
+public void enviar(View view) {
+    String usuario = reg_usuario.getText().toString();
+    String password = reg_password.getText().toString();
+    if (usuario.isEmpty() || password.isEmpty()) {
+        Toast.makeText(this, "Ingrese su usuario y contraseña",
+            Toast.LENGTH_SHORT).show();
+        return;
+    }
+    Intent i = new Intent(this, MainActivity.class);
+    i.putExtra("dato", reg_usuario.getText().toString());
+    i.putExtra("dato2", reg_password.getText().toString());
+    Toast.makeText(this, "Registro exitoso", Toast.LENGTH_SHORT).show();
+    startActivity(i);
+}
+```
+
+## Intent Extras
+
+The credentials are delivered to `MainActivity` via the following Intent extras:
+
+| Key | Value | Description |
+|---|---|---|
+| `"dato"` | Username string | The employee username entered in `reg_usuario`. Retrieved in `MainActivity` via `getIntent().getStringExtra("dato")`. |
+| `"dato2"` | Password string | The employee password entered in `reg_password`. Retrieved in `MainActivity` via `getIntent().getStringExtra("dato2")`. |
+
+On the receiving end, `MainActivity.onCreate()` reads both extras immediately:
+
+```java MainActivity.java
+datoUsuarioRecibido    = getIntent().getStringExtra("dato");
+dato2PasswordRecibido  = getIntent().getStringExtra("dato2");
+```
+
+These values are then used by `inicioSesion(View)` to validate login attempts.
+
+<Note>
+  Credentials passed via Intent extras are held in memory for the lifetime of the `MainActivity` instance. If the activity is destroyed — for example by the user pressing the back button, closing the app, or the system reclaiming memory — the stored credentials are lost and the employee must register again on the next launch.
+</Note>
+
+<Tip>
+  For persistent credential storage across app sessions, see [data/local-database](/data/local-database) for guidance on implementing a SQLite-backed solution using Android's `SQLiteOpenHelper` or Room.
+</Tip>

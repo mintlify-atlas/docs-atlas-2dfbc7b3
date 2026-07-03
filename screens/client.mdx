@@ -1,0 +1,57 @@
+---
+title: "Client Screen — Guest Access in ThunderRAR"
+sidebarTitle: "Client"
+description: "The ThunderRAR client screen provides a separate entry point for non-employee users, accessible from the login screen without credentials."
+---
+
+The client screen offers a dedicated entry point for non-employee users who need to interact with ThunderRAR without going through the employee registration and login flow. Unlike the employee path — which requires a registered username and password — the client screen is accessible directly from the login screen with a single tap on the **SOY CLIENTE** button, and no credentials are required. The screen is implemented by `activity_cliente` and is a placeholder that is ready to receive client-facing features in a future release.
+
+## Accessing the Client Screen
+
+From the login screen, the yellow **SOY CLIENTE** button (`button5`) calls `MainActivity.cliente(View)`. This method creates an explicit `Intent` targeting `activity_cliente` and launches it immediately with `startActivity`:
+
+```java MainActivity.java
+public void cliente(View view) {
+    Intent cli = new Intent(this, activity_cliente.class);
+    startActivity(cli);
+}
+```
+
+No Intent extras, permissions, or credential checks are involved. Any user who can reach the login screen can access the client screen.
+
+## Current State
+
+The `activity_cliente` class contains only the boilerplate `onCreate` setup — it enables edge-to-edge display, sets its content view to `activity_cliente.xml`, and applies window inset padding. No business logic or navigation is wired up yet.
+
+The layout file (`activity_cliente.xml`) is a `ConstraintLayout` that shares the same background image used by the main menu (`fondo_pantalla_menu_prueba`). It currently contains a single placeholder `TextView` (`textView7`) with the text `"estas en venta en venta de cliente"` positioned near the top centre of the screen. This element is a development artefact and is expected to be replaced when the client-facing feature set is implemented.
+
+```java activity_cliente.java
+public class activity_cliente extends AppCompatActivity {
+
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        EdgeToEdge.enable(this);
+        setContentView(R.layout.activity_cliente);
+        ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.main), (v, insets) -> {
+            Insets systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars());
+            v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom);
+            return insets;
+        });
+    }
+}
+```
+
+## AndroidManifest Declaration
+
+`activity_cliente` is registered in `AndroidManifest.xml` with `android:exported="false"`. This means the activity cannot be started by any other application on the device — it can only be launched from within ThunderRAR itself (as done by `MainActivity.cliente(View)`):
+
+```xml AndroidManifest.xml
+<activity
+    android:name=".activity_cliente"
+    android:exported="false" />
+```
+
+<Info>
+  This screen is reserved for future client-facing functionality such as browsing available products, checking prices, or placing orders. The current layout is a placeholder and will be expanded in an upcoming release.
+</Info>

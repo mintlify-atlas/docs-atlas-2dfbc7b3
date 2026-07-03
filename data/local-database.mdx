@@ -1,0 +1,91 @@
+---
+title: "Local SQLite Database in ThunderRAR"
+sidebarTitle: "Local Database"
+description: "ThunderRAR uses Android's SQLiteOpenHelper to manage a local users table that stores employee usernames and passwords on the device."
+---
+
+ThunderRAR includes a local SQLite database layer backed by Android's `SQLiteOpenHelper` API. The `BaseDeDatosUsers` class encapsulates all database lifecycle management — creating the schema on first launch and providing a hook for future migrations — giving the application a structured, on-device store for employee credentials that does not rely on a remote server or shared preferences.
+
+## BaseDeDatosUsers class
+
+`BaseDeDatosUsers` extends `SQLiteOpenHelper` and is the single point of contact between the application and its SQLite database. Its constructor delegates to the parent `SQLiteOpenHelper` constructor, accepting the standard four arguments: an Android `Context`, the database filename, an optional `CursorFactory`, and a schema version integer. The two overridden lifecycle methods handle schema creation (`onCreate`) and future schema evolution (`onUpgrade`).
+
+- **`onCreate(SQLiteDatabase)`** — executed the very first time the database file is opened on a device. It creates the `users` table with `usuario` as the primary key and `password` as a plain-text column.
+- **`onUpgrade(SQLiteDatabase, int, int)`** — called whenever the version integer supplied to the constructor is higher than the version stored in the existing database file. The body is intentionally left empty in v1.0 and is reserved for schema migration logic in future releases.
+
+```java BaseDeDatosUsers.java
+package com.example.thunder;
+
+import android.content.Context;
+import android.database.sqlite.SQLiteDatabase;
+import android.database.sqlite.SQLiteOpenHelper;
+
+public class BaseDeDatosUsers extends SQLiteOpenHelper {
+
+    public BaseDeDatosUsers(
+        Context context,
+        String name,
+        SQLiteDatabase.CursorFactory factory,
+        int version
+    ) {
+        super(context, name, factory, version);
+    }
+
+    @Override
+    public void onCreate(SQLiteDatabase BaseDeDatos) {
+        BaseDeDatos.execSQL(
+            "create table users (usuario text primary key, password text)"
+        );
+    }
+
+    @Override
+    public void onUpgrade(SQLiteDatabase BaseDeDatos, int oldVersion, int newVersion) {
+        // reserved for future schema migrations
+    }
+}
+```
+
+## Schema
+
+The `users` table is created by the `execSQL` call inside `onCreate`. It holds one row per registered employee.
+
+| Column     | Type   | Constraint  |
+|------------|--------|-------------|
+| `usuario`  | TEXT   | PRIMARY KEY |
+| `password` | TEXT   | —           |
+
+`usuario` is declared as the primary key, which means the database engine automatically enforces uniqueness across all stored usernames and indexes the column for fast lookups. `password` has no additional constraints in v1.0.
+
+## Instantiation
+
+To open or create the database, construct a `BaseDeDatosUsers` instance by passing:
+
+1. A valid Android `Context` (usually an `Activity` or `Application` context).
+2. The filename for the SQLite database file on disk (e.g. `"thunderrar.db"`).
+3. `null` for the `CursorFactory` parameter — this tells Android to use its default cursor implementation.
+4. A schema version integer (start at `1` and increment whenever the schema changes).
+
+Call `getWritableDatabase()` to obtain a `SQLiteDatabase` instance ready for read and write operations.
+
+```java
+BaseDeDatosUsers db = new BaseDeDatosUsers(
+    context,
+    "thunderrar.db",
+    null,
+    1
+);
+SQLiteDatabase writableDb = db.getWritableDatabase();
+```
+
+If you only need to perform read operations, prefer `getReadableDatabase()` to avoid unnecessary write locks on the file.
+
+## Future integration
+
+In v1.0, employee credentials are passed between screens via Android `Intent` extras rather than being read from or written to the SQLite database at runtime. The `BaseDeDatosUsers` class is therefore scaffolded but not yet wired into the registration or login flow. It serves as the foundation for a future release that will persist registered users to the `users` table, enabling credentials to survive app restarts, device reboots, and configuration changes such as screen rotation.
+
+<Note>
+  The SQLite database file is stored in the app's private data directory
+  (`/data/data/com.example.thunder/databases/`). Android's permission model
+  ensures that no other application on the device can read or write this file
+  without root access.
+</Note>

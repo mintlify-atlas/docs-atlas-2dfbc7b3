@@ -1,0 +1,99 @@
+---
+title: "Set Up a ThunderRAR Development Environment"
+sidebarTitle: "Setup"
+description: "Configure your local machine to develop and contribute to ThunderRAR. Covers Android Studio, JDK, SDK requirements, and project import."
+---
+
+This page walks you through everything you need to get a fully working ThunderRAR development environment on your local machine. It covers the required tools, Android SDK configuration, project import, Gradle sync, and a summary of all runtime dependencies so you can start contributing straight away.
+
+## System requirements
+
+Before you begin, make sure your machine has the following tools and SDKs installed:
+
+- **Android Studio** (latest stable recommended) — the official IDE for Android development, available at [developer.android.com/studio](https://developer.android.com/studio).
+- **JDK 11** — both `sourceCompatibility` and `targetCompatibility` are set to `JavaVersion.VERSION_11` in `app/build.gradle.kts`. Android Studio ships with a bundled JDK, so a separate installation is usually not necessary.
+- **Android SDK 35** — the project compiles against `compileSdk = 35`.
+- **Minimum Android API 24** — `minSdk = 24` means the app targets devices running Android 7.0 Nougat and above.
+
+## Step-by-step setup
+
+<Steps>
+  <Step title="Install Android Studio">
+    Download the latest stable release of Android Studio from [developer.android.com/studio](https://developer.android.com/studio) and follow the installer for your operating system. The IDE bundles an Android SDK Manager, an emulator, and a JDK, so no additional downloads are required for most setups.
+  </Step>
+  <Step title="Install JDK 11">
+    Android Studio bundles a compatible JDK automatically. To confirm the version in use, open a terminal and run:
+
+    ```bash
+    java -version
+    ```
+
+    The output should report a Java 11 runtime. If you see a different version, configure the JDK path in **File → Project Structure → SDK Location → JDK location**.
+  </Step>
+  <Step title="Clone the repository">
+    Clone the ThunderRAR repository to your local machine:
+
+    ```bash
+    git clone https://github.com/Viruz7w7/thunderRAR.git
+    ```
+
+    This creates a `thunderRAR` directory containing the full project, including the Gradle wrapper scripts.
+  </Step>
+  <Step title="Open the project in Android Studio">
+    In Android Studio, go to **File → Open** and navigate to the `thunderRAR` folder you just cloned. Select the folder and click **OK**. Android Studio automatically detects the Gradle build files and recognises it as a Gradle project.
+  </Step>
+  <Step title="Sync Gradle">
+    After the project opens, Android Studio displays a banner at the top of the editor: **"Gradle files have changed since last project sync. A project sync may be necessary."** Click **Sync Now**. Gradle resolves and downloads all declared dependencies from Maven Central and Google's Maven repository.
+  </Step>
+  <Step title="Verify the build">
+    Once the sync completes successfully, trigger a full build via **Build → Make Project** (keyboard shortcut: `Ctrl+F9` on Windows/Linux, `Cmd+F9` on macOS). A green **BUILD SUCCESSFUL** message in the Build output panel confirms that the environment is correctly set up and ready for development.
+  </Step>
+</Steps>
+
+## Gradle configuration
+
+The project uses Gradle with the Kotlin DSL (`build.gradle.kts`). The key Android configuration block in `app/build.gradle.kts` is shown below:
+
+```kotlin app/build.gradle.kts
+android {
+    namespace = "com.example.thunder"
+    compileSdk = 35
+
+    defaultConfig {
+        applicationId = "com.example.thunder"
+        minSdk = 24
+        targetSdk = 35
+        versionCode = 1
+        versionName = "1.0"
+    }
+
+    compileOptions {
+        sourceCompatibility = JavaVersion.VERSION_11
+        targetCompatibility = JavaVersion.VERSION_11
+    }
+}
+```
+
+- **`namespace`** — maps to the Java package `com.example.thunder` and is used for the generated `R` class.
+- **`compileSdk = 35`** — the app is compiled against Android API level 35, giving access to the latest SDK APIs.
+- **`minSdk = 24`** — enforces Android 7.0 as the oldest supported version.
+- **`targetSdk = 35`** — signals to the OS that the app is fully compatible with Android 35 behaviour changes.
+- **`versionCode = 1` / `versionName = "1.0"`** — marks this as the initial release.
+- **`compileOptions`** — both source and target compatibility are locked to Java 11, enabling lambda expressions and other modern Java language features.
+
+## Dependencies
+
+All library versions are centralised in `gradle/libs.versions.toml` and referenced via the version catalogue in `app/build.gradle.kts`. The four runtime dependencies are:
+
+| Library | Version | Purpose |
+|---|---|---|
+| `androidx.appcompat:appcompat` | 1.7.0 | AndroidX backward-compatibility layer; provides `AppCompatActivity` and backported UI components. |
+| `com.google.android.material:material` | 1.12.0 | Material Design components (buttons, cards, typography, colour theming). |
+| `androidx.activity:activity` | 1.10.1 | `ActivityResultContracts`, `EdgeToEdge` support, and lifecycle-aware activity APIs. |
+| `androidx.constraintlayout:constraintlayout` | 2.2.1 | Flexible XML layout engine used to position views with constraint-based rules. |
+
+Testing dependencies (`junit:junit 4.13.2`, `androidx.test.ext:junit 1.2.1`, `androidx.test.espresso:espresso-core 3.6.1`) are declared as `testImplementation` and `androidTestImplementation` only and are never bundled into the final APK.
+
+<Tip>
+  Android Studio's **Device Manager** (accessible from the right-hand toolbar or via **View → Tool Windows → Device Manager**) lets you create and manage Android Virtual Devices (AVDs). You can emulate a wide range of screen sizes and API levels without needing a physical Android phone during development.
+</Tip>

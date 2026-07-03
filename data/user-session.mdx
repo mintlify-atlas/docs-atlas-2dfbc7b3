@@ -1,0 +1,110 @@
+---
+title: "User Session Management in ThunderRAR"
+sidebarTitle: "User Session"
+description: "ThunderRAR v1.0 manages user sessions through Android Intent extras, passing registration credentials from the registration screen back to the login screen."
+---
+
+In ThunderRAR v1.0, session data flows entirely through Android `Intent` extras rather than a persistent store. When an employee completes registration in `activity_registro`, their username and password are attached to an `Intent` that launches `MainActivity`. The login screen then holds those values in memory as instance variables for the lifetime of the Activity, comparing them against the credentials the employee types into the login form when they attempt to sign in.
+
+## Session flow
+
+<Steps>
+  <Step title="Registration — credentials are packaged into an Intent">
+    The employee fills in a username and password in `activity_registro`. When they tap the submit button, the `enviar(View)` method validates that neither field is empty, then creates an `Intent` targeting `MainActivity` and attaches the credentials as extras:
+
+    ```java
+    Intent i = new Intent(this, MainActivity.class);
+    i.putExtra("dato",  reg_usuario.getText().toString());
+    i.putExtra("dato2", reg_password.getText().toString());
+    startActivity(i);
+    ```
+
+    A short `Toast` confirms successful registration before the transition.
+  </Step>
+
+  <Step title="Login screen — extras are received and stored in memory">
+    `MainActivity.onCreate()` is called with the incoming `Intent`. The extras are extracted immediately and stored as private instance variables on the Activity:
+
+    ```java
+    datoUsuarioRecibido  = getIntent().getStringExtra("dato");
+    dato2PasswordRecibido = getIntent().getStringExtra("dato2");
+    ```
+
+    These variables remain in memory for as long as the `MainActivity` instance is alive.
+  </Step>
+
+  <Step title="Login attempt — form input is compared to stored extras">
+    When the employee submits the login form, `inicioSesion(View)` reads the current values of the username and password `EditText` fields and compares them to the stored extras:
+
+    ```java
+    public void inicioSesion(View view) {
+        String datoUsuario   = txt_usuario.getText().toString();
+        String datoPassword  = txt_password.getText().toString();
+
+        if (datoUsuarioRecibido == null || dato2PasswordRecibido == null) {
+            Toast.makeText(this, "Datos de registro no encontrados, regístrese",
+                Toast.LENGTH_SHORT).show();
+            return;
+        }
+        if (datoUsuario.isEmpty() || datoPassword.isEmpty()) {
+            Toast.makeText(this, "Ingrese su usuario y contraseña",
+                Toast.LENGTH_SHORT).show();
+            return;
+        }
+        if (datoUsuario.equals(datoUsuarioRecibido)
+                && datoPassword.equals(dato2PasswordRecibido)) {
+            Intent ini = new Intent(this, Activity_menu.class);
+            startActivity(ini);
+        } else {
+            Toast.makeText(this, "Usuario o contraseña incorrecta",
+                Toast.LENGTH_SHORT).show();
+        }
+    }
+    ```
+
+    If either stored extra is `null` (i.e. the user reached the login screen without registering first), the method shows a prompt to register and returns early.
+  </Step>
+
+  <Step title="Successful login — user is taken to Activity_menu">
+    When both the username and password match their stored counterparts, a new `Intent` launches `Activity_menu`. The session is considered active for the lifetime of the `MainActivity` instance; no token, cookie, or persistent flag is written to disk.
+  </Step>
+</Steps>
+
+## Intent extras reference
+
+The following extras are written by `activity_registro.enviar()` and read by `MainActivity.onCreate()`.
+
+| Key      | Type     | Description                                      |
+|----------|----------|--------------------------------------------------|
+| `"dato"` | `String` | The employee's chosen username (plain text).     |
+| `"dato2"`| `String` | The employee's chosen password (plain text).     |
+
+Both extras are mandatory for the login flow to function. If either is absent when `inicioSesion` runs, the user is prompted to complete registration before attempting to sign in.
+
+## Limitations in v1.0
+
+The Intent-extra approach is straightforward to implement but carries several practical limitations that matter for any production deployment.
+
+- **Credentials exist only in memory.** Once the `MainActivity` instance is destroyed, `datoUsuarioRecibido` and `dato2PasswordRecibido` are lost. There is no way to recover the session without going through registration again.
+- **App close or force-stop clears the session.** If the user navigates away and Android kills the process, the stored extras are gone.
+- **Screen rotation may recreate the Activity.** Unless the `Intent` is re-delivered (which Android does on a standard relaunch from the back stack), rotating the device can set both instance variables back to `null`.
+- **No token or persistent session.** There is no session token, cookie, or shared-preferences flag that survives beyond the current process lifetime.
+- **Single-user model.** Only the most recently registered set of credentials is held in memory; the app cannot distinguish between multiple employees on the same device.
+
+## Recommended improvements
+
+The following changes would bring ThunderRAR's authentication layer up to production standards.
+
+- **Persist credentials in SQLite via `BaseDeDatosUsers`.** Write the registered username and a hashed password to the `users` table in `BaseDeDatosUsers` so that credentials survive app restarts and can be looked up at login time without requiring re-registration.
+- **Use Android's `EncryptedSharedPreferences` for session tokens.** After a successful login, generate a session token and store it in `EncryptedSharedPreferences` (part of the AndroidX Security library). Check for a valid token on `MainActivity.onCreate()` to auto-login returning users.
+- **Hash passwords before storage.** Apply a one-way hashing algorithm such as BCrypt or Argon2 to the password before it is written to the database or shared preferences. Compare hashes at login time rather than comparing plain-text strings.
+- **Avoid passing raw passwords through Intent extras.** Intents can be inspected by other apps with the `READ_LOGS` permission on older API levels. Keep credentials out of the Intent system entirely once a database-backed flow is in place.
+
+<Warning>
+  In ThunderRAR v1.0, passwords travel as plain-text strings inside `Intent`
+  extras and are held in memory without any encryption or hashing. This
+  approach is acceptable for a course project where the threat model is
+  minimal, but it **must not** be used in a production application. Before any
+  real-world deployment, replace the Intent-extra mechanism with hashed
+  credential storage (see the recommendations above).
+</Warning>

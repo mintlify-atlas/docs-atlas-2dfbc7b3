@@ -1,0 +1,64 @@
+---
+title: "ThunderRAR Project Structure and Architecture"
+sidebarTitle: "Project Structure"
+description: "Overview of the ThunderRAR Android project layout, key source files, resource directories, and how the screens connect to each other."
+---
+
+This page describes how the ThunderRAR project is laid out on disk, what each Java source file is responsible for, and how the four screens are wired together through Android Intents. Understanding this structure will help you navigate the codebase, add new screens, or extend the existing business modules.
+
+## Directory tree
+
+```
+thunderRAR/
+├── app/
+│   ├── src/
+│   │   ├── main/
+│   │   │   ├── java/com/example/thunder/
+│   │   │   │   ├── MainActivity.java
+│   │   │   │   ├── activity_registro.java
+│   │   │   │   ├── Activity_menu.java
+│   │   │   │   ├── activity_cliente.java
+│   │   │   │   └── BaseDeDatosUsers.java
+│   │   │   ├── res/
+│   │   │   │   ├── layout/   (XML layouts)
+│   │   │   │   ├── values/   (strings, colors, themes)
+│   │   │   │   └── mipmap-*/  (icons and backgrounds)
+│   │   │   └── AndroidManifest.xml
+│   │   └── androidTest/ & test/
+│   └── build.gradle.kts
+├── gradle/
+│   └── libs.versions.toml
+└── settings.gradle.kts
+```
+
+## Source files
+
+| File | Responsibility |
+|---|---|
+| `MainActivity.java` | Login screen — collects username and password, validates them against credentials received as Intent extras, navigates to `Activity_menu` on success, and hosts image buttons that open the GitHub repo, WhatsApp contact, and Universidad Autónoma del Perú website. |
+| `activity_registro.java` | Registration screen — accepts a new username and password, validates that neither field is empty, then fires an Intent back to `MainActivity` carrying the credentials as extras (`"dato"` and `"dato2"`). |
+| `Activity_menu.java` | Business dashboard — the landing screen after a successful login. Declares four button handlers (`men_venta`, `men_comunidad`, `men_logistica`, `men_reporte`) that currently show a "para la siguiente actualizacion" toast, marking them as placeholders for v2.0. |
+| `activity_cliente.java` | Client access screen — a standalone view reached from the login screen without authentication. Initialises with `activity_cliente` layout and applies edge-to-edge window insets. No additional logic in v1.0. |
+| `BaseDeDatosUsers.java` | SQLite database helper extending `SQLiteOpenHelper`. The `onCreate` method creates a `users` table with `usuario TEXT PRIMARY KEY` and `password TEXT` columns. Reserved for future authenticated persistence; v1.0 credential flow uses Intent extras instead. |
+
+## Navigation flow
+
+ThunderRAR uses explicit Android Intents for all screen transitions. The flow is as follows:
+
+1. **`MainActivity` → `activity_registro`** — the user taps **REGISTRARSE**. `MainActivity.registro()` creates a plain `Intent` targeting `activity_registro` and calls `startActivity`.
+2. **`activity_registro` → `MainActivity`** — after a successful registration, `activity_registro.enviar()` puts the entered username and password into the Intent as extras (`"dato"` and `"dato2"`) and starts `MainActivity`. The login screen reads these extras in `onCreate` via `getIntent().getStringExtra(...)`.
+3. **`MainActivity` → `Activity_menu`** — when the submitted username and password match the received Intent extras, `MainActivity.inicioSesion()` starts `Activity_menu`. No extras are passed.
+4. **`MainActivity` → `activity_cliente`** — the user taps **SOY CLIENTE**. `MainActivity.cliente()` starts `activity_cliente` directly, bypassing authentication entirely.
+
+## Key dependencies
+
+These versions are declared in `gradle/libs.versions.toml` and consumed by `app/build.gradle.kts`:
+
+| Library | Version |
+|---|---|
+| `androidx.appcompat:appcompat` | 1.7.0 |
+| `com.google.android.material:material` | 1.12.0 |
+| `androidx.activity:activity` | 1.10.1 |
+| `androidx.constraintlayout:constraintlayout` | 2.2.1 |
+
+The Android Gradle Plugin (`com.android.application`) is pinned to **8.9.2**, and the project compiles against **SDK 35** while supporting devices back to **SDK 24**.

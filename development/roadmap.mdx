@@ -1,0 +1,54 @@
+---
+title: "ThunderRAR Development Roadmap"
+sidebarTitle: "Roadmap"
+description: "Planned features and improvements for future ThunderRAR versions, including the four business modules and persistence enhancements."
+---
+
+ThunderRAR v1.0 is an initial release that establishes the core authentication flow and main menu shell of the application. The foundation is intentionally lean: it demonstrates user registration, login validation, and a client-facing screen while keeping the codebase approachable for new contributors. The features described on this page represent the improvements and expansions planned for upcoming versions.
+
+## v1.0 — Current release
+
+The following capabilities are fully implemented and shipped in the current release:
+
+- ✅ **Employee login** — `MainActivity` accepts a username and password, validates them against credentials passed from the registration screen, and navigates to the main menu on success.
+- ✅ **User registration** — `activity_registro` collects new credentials and passes them back to the login screen via `Intent` extras.
+- ✅ **Client access screen** — `activity_cliente` provides a dedicated entry point for client-facing interactions, separate from the employee login flow.
+- ✅ **Main menu dashboard structure** — `Activity_menu` renders the four business-module buttons (Venta, Comunidad, Logistica, Reporte) with edge-to-edge display enabled via `EdgeToEdge`.
+- ✅ **In-app external links** — `MainActivity` exposes image buttons that open the project's GitHub repository (`https://github.com/Viruz7w7/thunderRAR`), a WhatsApp contact link (`https://wa.me/929470345`), and the Universidad Autónoma del Perú website (`https://www.autonoma.pe`) using `Intent.ACTION_VIEW`.
+
+## Planned features
+
+The four business modules visible on the main menu dashboard are reserved for the next major version. Each card below describes the intended scope:
+
+<CardGroup cols={2}>
+  <Card title="Venta" icon="tag">
+    **Sales management module.** Process sales transactions, record line items, calculate totals, and track revenue over time. This module will integrate with the Logistica module for stock deduction on confirmed sales.
+  </Card>
+  <Card title="Comunidad" icon="users">
+    **Community module.** Manage customer relationships and communication. Store client profiles, contact history, and support a messaging or notification flow to keep customers engaged.
+  </Card>
+  <Card title="Logistica" icon="truck">
+    **Logistics module.** Track inventory movements and delivery status. Manage product stock levels, record incoming and outgoing shipments, and surface alerts when stock falls below defined thresholds.
+  </Card>
+  <Card title="Reporte" icon="chart-bar">
+    **Reports module.** Generate summaries and analytics for business operations. Aggregate data from the Venta, Comunidad, and Logistica modules to produce exportable reports and on-screen charts.
+  </Card>
+</CardGroup>
+
+## Technical improvements
+
+In parallel with new feature modules, the following technical improvements are planned:
+
+- **SQLite-backed credential persistence** — `BaseDeDatosUsers` (extending `SQLiteOpenHelper`) already defines the `users` table schema (`usuario TEXT PRIMARY KEY, password TEXT`). A future version will wire the registration and login screens to this database, replacing the current in-memory `Intent`-based credential passing.
+- **Password hashing before storage** — plain-text passwords will be replaced by a hashed representation (e.g. using `MessageDigest` with SHA-256) before any credentials are written to the SQLite database.
+- **Multi-user support** — the persistence layer will support multiple registered employees, each with independent credentials and role-based access to business modules.
+- **Session token management** — after successful login, a session token will be generated and stored to keep the user authenticated across activity restarts without re-entering credentials.
+- **ProGuard / R8 minification for release builds** — `isMinifyEnabled` is currently `false` in the release build type. Enabling R8 shrinking and obfuscation, backed by rules in `app/proguard-rules.pro`, will reduce APK size and make the release artifact harder to reverse-engineer.
+
+<Info>
+  All four module buttons in `Activity_menu.java` (`men_venta`, `men_comunidad`, `men_logistica`, `men_reporte`) currently display a `Toast` with the message **"para la siguiente actualizacion"** ("for the next update") when tapped. This serves as a clear placeholder indicating that the business logic for these modules is reserved for the upcoming release.
+</Info>
+
+<Note>
+  Contributions are welcome! If you would like to help implement any of the features listed above, open a pull request or file an issue at [github.com/Viruz7w7/thunderRAR](https://github.com/Viruz7w7/thunderRAR).
+</Note>

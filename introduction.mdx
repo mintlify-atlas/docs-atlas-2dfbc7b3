@@ -1,0 +1,52 @@
+---
+title: "ThunderRAR: Android Business Management App"
+sidebarTitle: "Introduction"
+description: "ThunderRAR is a native Android app for employee authentication and business module access, built as a software engineering course final project."
+---
+
+ThunderRAR is a native Android application written in Java that gives businesses a single entry point for employee authentication and operational module access. Employees log in with a username and password, while customers can reach a dedicated client view directly from the login screen. Once authenticated, employees land on a dashboard that surfaces four business modules — Sales, Community, Logistics, and Reports — all within a clean, Material-themed interface. The app is self-contained: no backend server is required, and all credential data is stored on-device using SQLite.
+
+## Key screens
+
+<CardGroup cols={2}>
+  <Card
+    title="Login"
+    icon="lock"
+    href="/screens/login"
+  >
+    The app's entry point. Employees enter their username and password to authenticate, or navigate to registration and the client view from here.
+  </Card>
+  <Card
+    title="Registration"
+    icon="user-plus"
+    href="/screens/registration"
+  >
+    New employees supply a username and password. On success, credentials are passed back to the login screen via Intent extras.
+  </Card>
+  <Card
+    title="Menu"
+    icon="grid-2"
+    href="/screens/menu"
+  >
+    The main business dashboard, reached after a successful login. Displays the four operational modules: Venta, Comunidad, Logística, and Reporte.
+  </Card>
+  <Card
+    title="Client"
+    icon="user"
+    href="/screens/client"
+  >
+    A separate view for customers, accessible directly from the login screen without requiring employee credentials.
+  </Card>
+</CardGroup>
+
+## Tech stack
+
+- **Java (Android)** — all activity logic is written in Java targeting the Android SDK
+- **AndroidX AppCompat 1.7.0** — backward-compatible Activity and UI primitives
+- **Material Components 1.12.0** — buttons, text fields, and theming following Material Design
+- **ConstraintLayout 2.2.1** — flexible, flat XML layouts for all screens
+- **SQLite via `SQLiteOpenHelper`** — on-device relational database; the `BaseDeDatosUsers` helper manages the `users` table with `usuario` (primary key) and `password` columns
+
+<Note>
+  ThunderRAR v1.0 is an introductory software engineering course final project built at **Universidad Autónoma del Perú**. The feature set is intentionally scoped to demonstrate core Android concepts — Activity lifecycle, Intent-based navigation, and local data persistence — with the four business module screens planned for future releases.
+</Note>

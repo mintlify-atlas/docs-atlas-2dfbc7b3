@@ -1,47 +1,64 @@
 ---
-title: "Quickstart"
-description: "Begin with a guide on the fastest path to a successful outcome"
+title: "Get Started with ThunderRAR"
+sidebarTitle: "Quickstart"
+description: "Clone the ThunderRAR repository, open it in Android Studio, and run the app on an emulator or physical device in a few steps."
 ---
 
-Describe how someone begins using your product. What is the first thing they need to do? Are there any prerequisites?
-
-A quickstart should take someone from zero to using your product. They'll get a quick win and a sense of what they can accomplish.
-
-## Prerequisites
-
-Before you begin, you must have:
-
-- Requirement one (for example, Node.js 18+, a free account, an API key)
-- Requirement two (for example, a compatible device, a compatible browser, a compatible operating system)
-
-## Get started
+This page walks you through getting ThunderRAR running on your local machine from scratch. You will clone the repository, let Gradle sync the dependencies, boot an emulator (or plug in a real device), and complete the full registration and login flow — all in under ten minutes.
 
 <Steps>
-  <Step title="Install">
-    Describe how to install your product or sign up.
+  <Step title="Prerequisites">
+    Make sure you have the following installed before continuing:
 
-    ```bash
-    npm install your-package
-    ```
+    - **Android Studio** (latest stable release — Hedgehog or newer recommended)
+    - **JDK 11 or higher** — the project sets `sourceCompatibility` and `targetCompatibility` to `JavaVersion.VERSION_11`
+    - **Android emulator or physical device** running **API level 24 (Android 7.0) or higher**
   </Step>
-  <Step title="Configure">
-    Describe any setup or configuration needed before first use.
+
+  <Step title="Clone the repository">
+    Open a terminal and run:
 
     ```bash
-    your-cli init
+    git clone https://github.com/Viruz7w7/thunderRAR.git
     ```
+
+    This creates a `thunderRAR/` directory containing the full Gradle project.
   </Step>
-  <Step title="Run it">
-    Show the first thing a user does to see it working.
 
-    ```bash
-    your-cli start
-    ```
+  <Step title="Open in Android Studio">
+    1. Launch Android Studio.
+    2. Choose **File → Open**.
+    3. Navigate to and select the `thunderRAR/` folder you just cloned.
+    4. Click **OK** and wait for the Gradle sync to finish. Android Studio will download all declared dependencies (`appcompat`, `material`, `activity`, `constraintlayout`) automatically.
+  </Step>
+
+  <Step title="Select a run target">
+    - **Emulator:** Open the **Device Manager** (toolbar or **View → Tool Windows → Device Manager**), click **Create Device**, and choose any phone profile with **API 24 or higher**. Start the AVD once it is created.
+    - **Physical device:** Enable **USB Debugging** on your Android device (**Settings → Developer Options → USB Debugging**), then connect it via USB. Android Studio will detect it automatically.
+  </Step>
+
+  <Step title="Run the app">
+    Click the green **Run** button in the toolbar (or press **Shift + F10**). Gradle builds the `:app` module and deploys the APK to your selected target. The **ThunderRAR login screen** appears, displaying the welcome message *"¡Bienvenido a ThunderRAR!"* along with fields for username and password.
+  </Step>
+
+  <Step title="Register an account">
+    1. Tap the **REGISTRARSE** button on the login screen.
+    2. You are taken to the registration screen (`activity_registro`).
+    3. Enter a **username** in the USUARIO field and a **password** in the CONTRASEÑA field.
+    4. Tap **REGISTRARSE**. A *"Registro exitoso"* toast appears, and the app navigates back to the login screen with your credentials stored in Intent extras.
+  </Step>
+
+  <Step title="Log in">
+    1. Back on the login screen, enter the same username and password you just registered.
+    2. Tap **INICIAR SESION**.
+    3. ThunderRAR validates the credentials against the values received via Intent extras and, on success, launches **Activity_menu** — the main business dashboard showing the Venta, Comunidad, Logística, and Reporte modules.
   </Step>
 </Steps>
 
 <Tip>
-  Give people a way to get help. This could be a link to a support page, a chat with a customer support agent, or a forum for your product.
-
-  Example: Need help? Reach out to us at [support@yourcompany.com](mailto:support@yourcompany.com).
+  The minimum supported SDK is **24 (Android 7.0)** and the app targets **SDK 35**. If your emulator or device runs below API 24, the app will not install. When creating an AVD, select a system image with API 24 or above.
 </Tip>
+
+<Note>
+  ThunderRAR has **no backend server**. All credential data is stored entirely on-device using SQLite through the `BaseDeDatosUsers` helper class. In v1.0, credentials are also passed between screens via Android Intent extras, so reinstalling the app or clearing app data will remove all registered accounts.
+</Note>

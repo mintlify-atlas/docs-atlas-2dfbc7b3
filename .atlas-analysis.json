@@ -1,0 +1,65 @@
+{
+  "projectType": "frontend",
+  "projectName": "ThunderRAR",
+  "projectDescription": "An Android mobile application for business management featuring user authentication and a dashboard with planned modules for sales, community, logistics, and reports.",
+  "theme": "almond",
+  "primaryColor": "#3B4FFF",
+  "lightColor": null,
+  "darkColor": null,
+  "navigation": {
+    "groups": [
+      {
+        "group": "Getting Started",
+        "pages": [
+          "introduction",
+          "quickstart",
+          "project-structure"
+        ]
+      },
+      {
+        "group": "Screens & Features",
+        "pages": [
+          "screens/login",
+          "screens/registration",
+          "screens/menu",
+          "screens/client"
+        ]
+      },
+      {
+        "group": "Data & Storage",
+        "pages": [
+          "data/local-database",
+          "data/user-session"
+        ]
+      },
+      {
+        "group": "Development",
+        "pages": [
+          "development/setup",
+          "development/build",
+          "development/roadmap"
+        ]
+      }
+    ]
+  },
+  "keyFeatures": [
+    "User registration with username and password",
+    "Employee login with credential validation",
+    "Client access mode (separate entry point)",
+    "Dashboard menu with Comunidad, Venta, Logistica, and Reporte modules (in development)",
+    "Local SQLite database for user storage via BaseDeDatosUsers",
+    "In-app links to GitHub, WhatsApp, and Universidad Autónoma del Perú",
+    "Edge-to-edge UI using AndroidX EdgeToEdge API"
+  ],
+  "publicApiSurface": [
+    "MainActivity.inicioSesion(View) — validates login credentials",
+    "MainActivity.registro(View) — navigates to registration screen",
+    "MainActivity.cliente(View) — navigates to client mode",
+    "activity_registro.enviar(View) — submits registration and passes data to MainActivity",
+    "Activity_menu.men_venta(View) — sales module entry (planned)",
+    "Activity_menu.men_comunidad(View) — community module entry (planned)",
+    "Activity_menu.men_logistica(View) — logistics module entry (planned)",
+    "Activity_menu.men_reporte(View) — reports module entry (planned)",
+    "BaseDeDatosUsers — SQLiteOpenHelper managing users table (usuario, password)"
+  ]
+}

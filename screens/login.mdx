@@ -1,0 +1,137 @@
+---
+title: "Login Screen — Employee Authentication in ThunderRAR"
+sidebarTitle: "Login"
+description: "The ThunderRAR login screen validates employee credentials stored during registration and routes users to the main menu or client mode."
+---
+
+The login screen is the entry point of ThunderRAR and the first screen employees see when the app launches. It is implemented by `MainActivity` and declared as the launcher activity in `AndroidManifest.xml`. From here, authenticated employees are routed to the main business menu, guest users can enter the client mode without credentials, and new employees can navigate to the registration screen to create an account.
+
+## UI Elements
+
+The login screen is built with a `ConstraintLayout` over a full-bleed background image (`fondo_pantalla_inico`) and is composed of the following elements:
+
+| Element | ID / Type | Description |
+|---|---|---|
+| App logo | `imageView` / `ShapeableImageView` | Circular-cropped application icon (`icon_aplicacion`) displayed at the top centre of the screen. |
+| App name label | `textView8` / `TextView` | Displays the string `ThunderRAR` in white at 20 sp, centred beneath the logo. |
+| Welcome text | `textView9` / `TextView` | Displays `¡Bienvenido a ThunderRAR!` in white at 19 sp, directly below the app name. |
+| Employee email / username field | `txt_usuario` / `EditText` | Accepts free text input (`inputType="text"`). Placeholder hint: **USUARIO**. White underline indicator. |
+| Password field | `txt_password` / `EditText` | Accepts secret input (`inputType="textPassword"`). Placeholder hint: **CONTRASEÑA**. White underline indicator. |
+| INICIAR SESION button | `button2` / `Button` | Blue background (`#3B4FFF`), white text. Triggers `inicioSesion(View)` on click. |
+| SOY CLIENTE button | `button5` / `Button` | Yellow background (`#FFEB3B`), black text. Triggers `cliente(View)` on click. |
+| REGISTRARSE button | `button` / `Button` | Red background (`#FF0000`), black text. Triggers `registro(View)` on click. |
+| Contact label | `textView10` / `TextView` | Reads "Si tienes unas consultas contactanos por esos medios:" in white at 16 sp. |
+| GitHub ImageButton | `btGithub` / `ImageButton` | Opens the project GitHub repository in a browser. |
+| WhatsApp ImageButton | `btWhatsapp` / `ImageButton` | Opens a WhatsApp chat link in a browser or the WhatsApp app. |
+| Autónoma ImageButton | `btAutonoma` / `ImageButton` | Opens the Universidad Autónoma del Perú website. |
+
+## Login Logic
+
+When the employee presses **INICIAR SESION**, the `inicioSesion(View)` method in `MainActivity` runs the following validation chain:
+
+<Steps>
+  <Step title="Read field values">
+    The text entered in `txt_usuario` and `txt_password` is read into local strings.
+  </Step>
+  <Step title="Check for registration data">
+    The method checks whether the `datoUsuarioRecibido` and `dato2PasswordRecibido` fields are non-null. These are populated from Intent extras `"dato"` and `"dato2"` that arrive from the registration screen. If either is null, a Toast prompts the user to register first and the method returns early.
+  </Step>
+  <Step title="Validate non-empty input">
+    If either the username or password field is empty, a Toast asking the user to fill both fields is shown and the method returns early.
+  </Step>
+  <Step title="Compare credentials">
+    The entered values are compared against the stored credentials using `String.equals()`. On a match, `Activity_menu` is launched. On a mismatch, a Toast reports an incorrect username or password.
+  </Step>
+</Steps>
+
+```java MainActivity.java
+public void inicioSesion(View view) {
+    String datoUsuario = txt_usuario.getText().toString();
+    String datoPassword = txt_password.getText().toString();
+    if (datoUsuarioRecibido == null || dato2PasswordRecibido == null) {
+        Toast.makeText(this, "Datos de registro no encontrados, registrase",
+            Toast.LENGTH_SHORT).show();
+        return;
+    }
+    if (datoUsuario.isEmpty() || datoPassword.isEmpty()) {
+        Toast.makeText(this, "ingrese su usuario y contraseña",
+            Toast.LENGTH_SHORT).show();
+        return;
+    }
+    if (datoUsuario.equals(datoUsuarioRecibido)
+            && datoPassword.equals(dato2PasswordRecibido)) {
+        Intent ini = new Intent(this, Activity_menu.class);
+        startActivity(ini);
+    } else {
+        Toast.makeText(this, "usuario o contraseña incorrecta",
+            Toast.LENGTH_SHORT).show();
+    }
+}
+```
+
+<Warning>
+  Credentials are stored in memory only as instance variables populated from Intent extras. They are **not persisted** to disk, a database, or shared preferences. If `MainActivity` is destroyed and recreated (e.g., the user closes and reopens the app), `datoUsuarioRecibido` and `dato2PasswordRecibido` will be `null` and the employee will need to re-register. Persistent credential storage using SQLite or another mechanism is planned for a future update.
+</Warning>
+
+## External Link Buttons
+
+`MainActivity` implements `View.OnClickListener` to handle the three contact `ImageButton` widgets. When tapped, each button fires an `Intent.ACTION_VIEW` with a specific URL. The URLs are declared as `private static final` constants at the top of the class:
+
+```java MainActivity.java
+private final static String GITHUB_URL    = "https://github.com/Viruz7w7/thunderRAR";
+private final static String WHATSAPP_URL  = "https://wa.me/929470345";
+private final static String AUTONOMA_URL  = "https://www.autonoma.pe";
+```
+
+The `onClick(View)` method resolves the tapped button by view ID, sets the matching URL on the Intent, and calls `startActivity`. If no app on the device can handle the URL scheme, a fallback Toast is shown instead:
+
+```java MainActivity.java
+@Override
+public void onClick(View v) {
+    Intent intent = new Intent(Intent.ACTION_VIEW);
+    String urlToOpen = null;
+    int viewId = v.getId();
+    if (viewId == R.id.btGithub) {
+        urlToOpen = GITHUB_URL;
+    } else if (viewId == R.id.btWhatsapp) {
+        urlToOpen = WHATSAPP_URL;
+    } else if (viewId == R.id.btAutonoma) {
+        urlToOpen = AUTONOMA_URL;
+    }
+    if (urlToOpen != null) {
+        intent.setData(Uri.parse(urlToOpen));
+        if (intent.resolveActivity(getPackageManager()) != null) {
+            startActivity(intent);
+        } else {
+            Toast.makeText(this, "No se puede abrir el navegador",
+                Toast.LENGTH_SHORT).show();
+        }
+    }
+}
+```
+
+The `AndroidManifest.xml` also includes `<queries>` entries for `https` and `http` schemes as well as a `<package>` entry for `com.whatsapp`, ensuring the intent resolution check works correctly on Android 11 and later.
+
+## Navigation
+
+The login screen is the root of the app navigation graph. The three action buttons lead to:
+
+| Button | Handler method | Destination |
+|---|---|---|
+| INICIAR SESION | `inicioSesion(View)` | `Activity_menu` — only on successful credential match |
+| SOY CLIENTE | `cliente(View)` | `activity_cliente` — guest access, no credentials required |
+| REGISTRARSE | `registro(View)` | `activity_registro` — account creation flow |
+
+```java MainActivity.java
+// Navigate to registration
+public void registro(View view) {
+    Intent reg = new Intent(this, activity_registro.class);
+    startActivity(reg);
+}
+
+// Navigate to client screen
+public void cliente(View view) {
+    Intent cli = new Intent(this, activity_cliente.class);
+    startActivity(cli);
+}
+```

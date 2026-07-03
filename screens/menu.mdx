@@ -1,0 +1,72 @@
+---
+title: "Main Menu — ThunderRAR Business Dashboard"
+sidebarTitle: "Menu"
+description: "The ThunderRAR main menu gives authenticated employees access to four business modules: Comunidad, Venta, Logistica, and Reporte."
+---
+
+The main menu is the central dashboard of ThunderRAR and the screen employees land on after a successful login. It is implemented by `Activity_menu` and launched from `MainActivity` when the entered credentials match the registered ones. The screen presents four business modules arranged in a 2×2 grid, each represented by an icon button and a label. All modules are currently stubbed and are planned for a future release.
+
+## Menu Modules
+
+<CardGroup cols={2}>
+  <Card title="Comunidad" icon="users">
+    The community module is intended for employee communication and collaboration features. This module is planned for a future update.
+  </Card>
+  <Card title="Venta" icon="tag">
+    The sales module will handle product listings, pricing, and transaction management. This module is planned for a future update.
+  </Card>
+  <Card title="Logistica" icon="truck">
+    The logistics module will cover delivery tracking, inventory movement, and supply chain operations. This module is planned for a future update.
+  </Card>
+  <Card title="Reporte" icon="chart-bar">
+    The reports module will provide business analytics, summaries, and exportable data views. This module is planned for a future update.
+  </Card>
+</CardGroup>
+
+<Info>
+  All four modules are stubbed for a future release. Tapping any module button currently displays the informational Toast message **"para la siguiente actualizacion"** and performs no further action.
+</Info>
+
+## Module Handler Methods
+
+Each `ImageButton` in the menu grid declares its corresponding handler method via `android:onClick`. All four methods in `Activity_menu` follow the same pattern: they display a short Toast and return. No navigation or business logic is executed yet.
+
+```java Activity_menu.java
+public void men_venta(View view) {
+    Toast.makeText(this, "para la siguiente actualizacion",
+        Toast.LENGTH_SHORT).show();
+}
+public void men_comunidad(View view) {
+    Toast.makeText(this, "para la siguiente actualizacion",
+        Toast.LENGTH_SHORT).show();
+}
+public void men_logistica(View view) {
+    Toast.makeText(this, "para la siguiente actualizacion",
+        Toast.LENGTH_SHORT).show();
+}
+public void men_reporte(View view) {
+    Toast.makeText(this, "para la siguiente actualizacion",
+        Toast.LENGTH_SHORT).show();
+}
+```
+
+The handler-to-button mapping is as follows:
+
+| Handler | Button ID | Module |
+|---|---|---|
+| `men_comunidad` | `imageButton2` | Comunidad |
+| `men_venta` | `imageButton3` | Venta |
+| `men_logistica` | `imageButton4` | Logistica |
+| `men_reporte` | `imageButton5` | Reporte |
+
+## Layout
+
+The screen uses a `ConstraintLayout` root with a full-bleed background image (`fondo_pantalla_menu_prueba`). Inside it, a `TableLayout` (372 dp × 546 dp) structures the grid as four `TableRow` entries:
+
+- **Row 1** — `ImageButton` for Comunidad, a 100 dp `Space` separator, `ImageButton` for Venta.
+- **Row 2** — `TextView` label "Comunidad", a 100 dp `Space` separator, `TextView` label "Venta".
+- **Spacer** — An 80 dp tall `Space` row creates vertical breathing room between the two module pairs.
+- **Row 3** — `ImageButton` for Logistica, a 100 dp `Space` separator, `ImageButton` for Reporte.
+- **Row 4** — `TextView` label "Logistica", a 100 dp `Space` separator, `TextView` label "Reporte".
+
+Each `ImageButton` has a fully transparent background tint (`#00FFFFFF`) so only the icon graphic is visible against the background image. Labels are rendered in black at 20 sp with centre gravity.
